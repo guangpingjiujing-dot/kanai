@@ -46,6 +46,9 @@
       - NO or Low code
     - Fabric notebook
       - Spark エンジン上のノートブック(PySpark/ SparkSQL)
+    - Apache Airflow
+      - ワークフローエンジン
+      - astronomer-cosmos を使うことで dbt との統合が可能
   - mirroring
     - Fabric 内にレプリカが作成され CDC をつかって同期される
       - snowflake
@@ -72,19 +75,37 @@
   - KQL Database
     - リアルタイムなストリームデータ用
 
+## ツール説明
+
+### dbt
+
+- データウェアハウジングとビジネスインテリジェンス
+  - DWH 上で T-SQL を使ってデータ変換を実行
+  - ビジネスロジックを SQL で記述し、分析用のデータマートを構築
+- メタデータ
+  - モデルの説明やカラムの定義を YAML で管理
+  - データリネージ（データの流れ）を自動的に追跡
+  - ドキュメント生成機能でデータカタログを構築
+  - モデル間の依存関係を可視化
+- データ品質
+  - データテスト機能で品質チェックを自動化
+  - カラムレベルや行レベルのテストを定義可能
+  - テスト結果をレポート化してデータ品質を監視
+  - スキーマ変更の検証や整合性チェックを実施
+
 https://speakerdeck.com/yuzutas0/20211210?slide=89
 https://docs.google.com/spreadsheets/d/1g6Q3vJJbeQICe0-DyfUgn9tPQ6tRfQ5tE_6QVpUlDxQ/edit?gid=0#gid=0
 
-| 英名                                     | 和名                                                  |
-| ---------------------------------------- | ----------------------------------------------------- |
-| Data Governance                          | データガバナンス                                      |
-| Data Architecture                        | データアーキテクチャ                                  |
-| Data Modeling & Design                   | データモデリングとデザイン                            |
-| Data Storage & Operations                | データストレージとオペレーション                      |
-| Data Security                            | データセキュリティ                                    |
-| Data Integration & Interoperability      | データ統合と相互運用性                                |
-| Documents & Content Management           | ドキュメントとコンテンツ管理                          |
-| Reference & Master Data                  | 参照データとマスターデータ                            |
-| Data Warehousing & Business Intelligence | データウェアハウジングと <br>ビジネスインテリジェンス |
-| Metadata                                 | メタデータ                                            |
-| Data Quality                             | データ品質                                            |
+| 英名                                     | 和名                                             |
+| ---------------------------------------- | ------------------------------------------------ |
+| Data Governance                          | データガバナンス                                 |
+| Data Architecture                        | データアーキテクチャ                             |
+| Data Modeling & Design                   | データモデリングとデザイン                       |
+| Data Storage & Operations                | データストレージとオペレーション                 |
+| Data Security                            | データセキュリティ                               |
+| Data Integration & Interoperability      | データ統合と相互運用性                           |
+| Documents & Content Management           | ドキュメントとコンテンツ管理                     |
+| Reference & Master Data                  | 参照データとマスターデータ                       |
+| Data Warehousing & Business Intelligence | データウェアハウジングとビジネスインテリジェンス |
+| Metadata                                 | メタデータ                                       |
+| Data Quality                             | データ品質                                       |
