@@ -52,17 +52,14 @@ erDiagram
         string address_id FK
         date order_date
         string status
-        decimal total_amount
     }
 
     OrderDetail {
         string order_detail_id PK
-
         string order_id FK
         string product_id FK
         int quantity
         decimal unit_price
-        decimal subtotal
     }
 
     Product {
@@ -172,7 +169,7 @@ erDiagram
 - 1 つの注文は 1 つの配送先を使用（多対 1）
 - 1 つの注文は複数の注文明細を持つ（1 対多）
 - 1 つの注文は複数の決済レコードを持つ（1 対多）
-- 注文金額を管理（決済情報は Payment エンティティで管理）
+- 注文合計金額は `SUM(OrderDetail.quantity * OrderDetail.unit_price)` で計算可能なため、保存しない（1 fact 1 place の原則）
 
 ### 4. OrderDetail（注文明細）
 
@@ -180,6 +177,8 @@ erDiagram
 - 1 つの注文に複数の明細が存在（多対 1）
 - 1 つの商品が複数の注文明細に含まれる可能性がある（多対 1）
 - 注文時点の単価を保持（商品マスタの価格変更に対応）
+- 数量（quantity）と単価（unit_price）を保持
+- 小計（subtotal）は `quantity * unit_price` で計算可能なため、保存しない（1 fact 1 place の原則）
 
 ### 5. Product（商品）
 
@@ -264,6 +263,9 @@ erDiagram
 1. **注文時の価格管理**
 
    - OrderDetail に unit_price を持たせることで、商品マスタの価格変更の影響を受けない
+   - 小計（subtotal）は `quantity * unit_price` で計算可能なため、保存しない（1 fact 1 place の原則に従う）
+   - 注文合計金額（total_amount）は `SUM(OrderDetail.quantity * OrderDetail.unit_price)` で計算可能なため、保存しない（1 fact 1 place の原則に従う）
+   - これにより、データの冗長性と不整合のリスクを排除
 
 2. **在庫の予約と状態管理**
 
