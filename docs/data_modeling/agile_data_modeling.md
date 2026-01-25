@@ -48,7 +48,7 @@ BI ツールに負荷をかけないため、BI ツールにはロジックを�
 
 - ダッシュボードを作成しても、分析の要件を満たしていない、もしくは分析に必要ないものとなる可能性がある。
 - 以下の資料にある通り、分析要件を先に決めることが重量
-  [ダッシュボードガイドブック](https://www.digital.go.jp/resources/dashboard-guidebook)
+  - [ダッシュボードガイドブック](https://www.digital.go.jp/resources/dashboard-guidebook)
 
 #### YAGNI 原則の適用
 
