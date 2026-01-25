@@ -542,5 +542,5 @@ BEAM\*テーブルができたら、それを**ディメンショナルモデリ
 
 -----
 - 他参考
-  -[逆スタースキーマ](https://qiita.com/shinyama/items/0567425a4a47ad7d6efa)
+  -[逆スタースキーマ](https://qiita.com/shinyama/items/0567425a4a47ad7d6efa)  
   -[アジャイルデータモデリングの実践例](https://www.youtube.com/watch?v=awu5YnFhfkQ)
