@@ -19,8 +19,16 @@ sources:
           - name: manager_id
             description: "上長ID"
       
+      - name: channels
+        description: "チャネルマスター"
+        columns:
+          - name: channel_id
+            description: "チャネルID"
+          - name: channel_name
+            description: "チャネル名"
+      
       - name: customers
-        description: "顧客マスター"
+        description: "顧客マスター（正規化：channel_idのみ）"
         columns:
           - name: customer_id
             description: "顧客ID"
@@ -35,23 +43,27 @@ sources:
           - name: representative_name
             description: "代表者名"
           - name: channel_id
-            description: "チャネルID"
-          - name: channel_name
-            description: "チャネル名"
+            description: "チャネルID（channelsテーブル参照）"
           - name: manager_name
             description: "上長名"
       
+      - name: regions
+        description: "地域マスター"
+        columns:
+          - name: region_id
+            description: "地域ID"
+          - name: region_name
+            description: "地域名"
+      
       - name: branches
-        description: "支店マスター"
+        description: "支店マスター（正規化：region_idのみ）"
         columns:
           - name: branch_id
             description: "支店ID"
           - name: branch_name
             description: "支店名"
           - name: region_id
-            description: "地域ID"
-          - name: region_name
-            description: "地域名"
+            description: "地域ID（regionsテーブル参照）"
       
       - name: stages
         description: "ステージマスター"
@@ -89,18 +101,30 @@ sources:
     description: "商品管理システムのデータソース"
     schema: source_products
     tables:
+      - name: categories
+        description: "カテゴリーマスター"
+        columns:
+          - name: category_id
+            description: "カテゴリーID"
+          - name: category_name
+            description: "カテゴリ名"
+      
+      - name: services
+        description: "サービスマスター"
+        columns:
+          - name: service_id
+            description: "サービスID"
+          - name: service_name
+            description: "サービス名"
+      
       - name: products
-        description: "商品マスター（fetch_products.pyで生成されるデータ）"
+        description: "商品マスター（正規化：category_id, service_idのみ）"
         columns:
           - name: product_id
             description: "商品ID"
           - name: product_name
             description: "商品名"
           - name: category_id
-            description: "カテゴリーID"
-          - name: category_name
-            description: "カテゴリ名"
+            description: "カテゴリーID（categoriesテーブル参照）"
           - name: service_id
-            description: "サービスID"
-          - name: service_name
-            description: "サービス名"
+            description: "サービスID（servicesテーブル参照）"

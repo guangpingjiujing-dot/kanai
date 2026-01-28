@@ -12,8 +12,10 @@
   - `stages`: ステージマスター
   - `opportunity_events`: 営業機会イベント（トランザクションデータ）
 
-- **商品管理システム**: `source_products`スキーマ
-  - `products`: 商品マスター（`fetch_products.py`で生成されるデータ）
+- **商品管理システム**: `source_products`スキーマ（正規化されたテーブル構造）
+  - `categories`: カテゴリーマスター
+  - `services`: サービスマスター
+  - `products`: 商品マスター（`category_id`と`service_id`のみ、`fetch_products.py`で生成されるデータ）
 
 ### モデル構造
 
@@ -23,6 +25,10 @@
 - `stg_crm_branches`: 支店データのステージング
 - `stg_crm_stages`: ステージデータのステージング
 - `stg_crm_opportunity_events`: 営業機会イベントデータのステージング
+- `stg_crm_channels`: チャネルデータのステージング
+- `stg_crm_regions`: 地域データのステージング
+- `stg_categories`: カテゴリーデータのステージング（商品管理システムから）
+- `stg_services`: サービスデータのステージング（商品管理システムから）
 - `stg_products`: 商品データのステージング（商品管理システムから）
 
 #### Intermediate層 (`models/intermediate/`)
@@ -81,6 +87,15 @@ dbt docs serve
 
 ## 注意事項
 
+- **データソースの正規化**: このプロジェクトでは、実際のRDBから取得される正規化されたデータ構造を想定しています。
+  - CRMシステム: `customers`と`channels`、`branches`と`regions`が分離されています
+  - 商品管理システム: `products`、`categories`、`services`が分離されています
+  - `intermediate`層でこれらのテーブルをJOINしてスタースキーマを構成します
+
 - **商品管理システムのスキーマ名**: `sources.yml`では`source_products`スキーマを想定しています。`fetch_products.py`を実行する際は、`FABRIC_WAREHOUSE_SCHEMA`環境変数を`source_products`に設定してください。
-- **商品データのロード**: 商品データは`fetch_products.py`を実行してFabric Warehouseにロードする必要があります。このスクリプトを実行すると、`source_products.products`テーブルに商品マスターデータが作成されます。
+
+- **商品データのロード**: 商品データは`fetch_products.py`を実行してFabric Warehouseにロードする必要があります。このスクリプトを実行すると、`source_products`スキーマに以下の3つのテーブルが作成されます：
+  - `categories`: カテゴリーマスター
+  - `services`: サービスマスター
+  - `products`: 商品マスター（`category_id`と`service_id`のみ）
 - `dim_date_seed.csv`は2020年から2030年までのサンプルデータのみが含まれています。必要に応じて`generate_dim_date.py`を実行して完全なデータを生成してください。

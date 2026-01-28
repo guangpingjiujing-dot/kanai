@@ -13,7 +13,6 @@ renamed as (
         email,
         representative_name,
         channel_id,
-        channel_name,
         manager_name
     from source
 )

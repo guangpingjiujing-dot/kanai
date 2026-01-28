@@ -4,25 +4,31 @@ with stg_customers as (
     select * from {{ ref('stg_crm_customers') }}
 ),
 
+stg_channels as (
+    select * from {{ ref('stg_crm_channels') }}
+),
+
 dim_customer as (
     select
         -- サロゲートキーを生成
-        row_number() over (order by customer_id) as customer_key,
-        customer_id,
-        customer_name,
-        account_name,
-        phone_number,
-        email,
-        representative_name,
-        -- チャネルキーは簡易的にROW_NUMBERで生成（実際は別テーブルから取得する場合もある）
+        row_number() over (order by c.customer_id) as customer_key,
+        c.customer_id,
+        c.customer_name,
+        c.account_name,
+        c.phone_number,
+        c.email,
+        c.representative_name,
+        -- チャネルキーを生成（channelsテーブルから取得）
         case 
-            when channel_id is not null then 
-                dense_rank() over (order by channel_id)
+            when c.channel_id is not null then 
+                dense_rank() over (order by c.channel_id)
             else null
         end as channel_key,
-        channel_name,
-        manager_name
-    from stg_customers
+        ch.channel_name,
+        c.manager_name
+    from stg_customers as c
+    left join stg_channels as ch
+        on c.channel_id = ch.channel_id
 )
 
 select * from dim_customer

@@ -134,43 +134,49 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_sales_person')
-              field: sales_person_key
+              arguments:
+                to: ref('dim_sales_person')
+                field: sales_person_key
       - name: customer_key
         description: "顧客キー（dim_customer参照）"
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_customer')
-              field: customer_key
+              arguments:
+                to: ref('dim_customer')
+                field: customer_key
       - name: product_key
         description: "商品キー（dim_product参照）"
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_product')
-              field: product_key
+              arguments:
+                to: ref('dim_product')
+                field: product_key
       - name: branch_key
         description: "支店キー（dim_branch参照）"
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_branch')
-              field: branch_key
+              arguments:
+                to: ref('dim_branch')
+                field: branch_key
       - name: stage_key
         description: "ステージキー（dim_stage参照）"
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_stage')
-              field: stage_key
+              arguments:
+                to: ref('dim_stage')
+                field: stage_key
       - name: date_key
         description: "日付キー（dim_date参照）"
         data_tests:
           - not_null
           - relationships:
-              to: ref('dim_date')
-              field: date_key
+              arguments:
+                to: ref('dim_date')
+                field: date_key
       - name: event_timestamp
         description: "イベント発生日時"
         data_tests:

@@ -1,14 +1,13 @@
 {{ config(materialized='view') }}
 
 with source as (
-    select * from {{ source('crm_system', 'branches') }}
+    select * from {{ source('product_system', 'services') }}
 ),
 
 renamed as (
     select
-        branch_id,
-        branch_name,
-        region_id
+        service_id,
+        service_name
     from source
 )
 
