@@ -4,29 +4,32 @@ with fact_events as (
     select * from {{ ref('fact_opportunity_events') }}
 ),
 
-dim_date as (
-    select * from {{ ref('dim_date') }}
-),
-
 dim_stage as (
     select * from {{ ref('dim_stage') }}
 ),
 
--- 月次×ステージ別の件数集計
+-- fact_eventsから日付情報を取得
+fact_with_date as (
+    select
+        f.*,
+        year(f.event_timestamp) as year,
+        month(f.event_timestamp) as month
+    from fact_events as f
+),
+
+-- 月次×ステージ別の件数集計（fact_eventsから直接集計）
 funnel_monthly as (
     select
-        concat(cast(d.year as varchar(4)), '-', 
-               right('0' + cast(d.month as varchar(2)), 2)) as 年月,
+        concat(cast(f.year as varchar(4)), '-', 
+               right('0' + cast(f.month as varchar(2)), 2)) as 年月,
         s.stage_name as ファネルステージ,
         s.stage_order as ステージ順序,
         count(distinct f.event_id) as 件数
-    from dim_date as d
-    cross join dim_stage as s
-    left join fact_events as f
-        on d.date_key = f.date_key
-        and s.stage_key = f.stage_key
-    where d.year >= 2023
-    group by d.year, d.month, s.stage_name, s.stage_order
+    from fact_with_date as f
+    inner join dim_stage as s
+        on f.stage_key = s.stage_key
+    where f.year >= 2023
+    group by f.year, f.month, s.stage_name, s.stage_order
 )
 
 select 

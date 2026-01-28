@@ -8,22 +8,30 @@ dim_date as (
     select * from {{ ref('dim_date') }}
 ),
 
--- 月次集計
+-- fact_eventsから日付情報を取得（dim_dateが空の場合でも動作するように）
+fact_with_date as (
+    select
+        f.*,
+        cast(format(f.event_timestamp, 'yyyyMMdd') as bigint) as date_key_calc,
+        year(f.event_timestamp) as year,
+        month(f.event_timestamp) as month
+    from fact_events as f
+),
+
+-- 月次集計（fact_eventsから直接集計）
 monthly_summary as (
     select
-        d.year,
-        d.month,
-        concat(cast(d.year as varchar(4)), '-', 
-               right('0' + cast(d.month as varchar(2)), 2)) as 年月,
+        f.year,
+        f.month,
+        concat(cast(f.year as varchar(4)), '-', 
+               right('0' + cast(f.month as varchar(2)), 2)) as 年月,
         count(distinct f.event_id) as 商談獲得数,
         sum(f.expected_amount) as 予想契約金額,
         count(distinct case when f.contract_amount is not null then f.event_id end) as 契約獲得数,
         sum(f.contract_amount) as 契約金額
-    from dim_date as d
-    left join fact_events as f
-        on d.date_key = f.date_key
-    where d.year >= 2023
-    group by d.year, d.month
+    from fact_with_date as f
+    where f.year >= 2023
+    group by f.year, f.month
 ),
 
 -- 前年比計算
