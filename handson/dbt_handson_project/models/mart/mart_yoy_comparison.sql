@@ -67,7 +67,19 @@ yoy_comparison as (
             when py.契約金額 > 0 
             then round((isnull(cy.契約金額, 0) - py.契約金額) * 100.0 / py.契約金額, 1)
             else null
-        end as 契約金額_前年比
+        end as 契約金額_前年比,
+        -- 契約当たり売上（当年）
+        case 
+            when cy.契約獲得数 > 0 
+            then round(isnull(cy.契約金額, 0) * 1.0 / cy.契約獲得数, 0)
+            else null
+        end as 契約当たり売上_当年,
+        -- 契約当たり売上（前年）
+        case 
+            when py.契約獲得数 > 0 
+            then round(isnull(py.契約金額, 0) * 1.0 / py.契約獲得数, 0)
+            else null
+        end as 契約当たり売上_前年
     from monthly_summary as cy
     left join monthly_summary as py
         on cy.year = py.year + 1
@@ -90,5 +102,7 @@ select
     契約獲得数_前年比,
     契約金額_当年,
     契約金額_前年,
-    契約金額_前年比
+    契約金額_前年比,
+    契約当たり売上_当年,
+    契約当たり売上_前年
 from yoy_comparison
