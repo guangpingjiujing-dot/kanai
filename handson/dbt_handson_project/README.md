@@ -25,7 +25,7 @@
 - `stg_crm_opportunity_events`: 営業機会イベントデータのステージング
 - `stg_products`: 商品データのステージング（商品管理システムから）
 
-#### Marts層 (`models/marts/`)
+#### Intermediate層 (`models/intermediate/`)
 - **ディメンションテーブル**:
   - `dim_sales_person`: 営業担当者ディメンション
   - `dim_customer`: 顧客ディメンション
@@ -36,6 +36,11 @@
 
 - **ファクトテーブル**:
   - `fact_opportunity_events`: 営業イベントファクトテーブル
+
+#### Mart層 (`models/mart/`)
+- **分析用マートテーブル**:
+  - `mart_yoy_comparison`: 前年比比較マートテーブル（月次）
+  - `mart_funnel_long`: ファネル分析マートテーブル（ロング形式）
 
 ## セットアップ
 

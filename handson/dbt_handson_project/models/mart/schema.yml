@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: mart_yoy_comparison
+    description: "前年比比較マートテーブル（月次）"
+    columns:
+      - name: 年月
+        description: "年月（YYYY-MM形式）"
+        data_tests:
+          - not_null
+      - name: 当年
+        description: "当年の年"
+      - name: 前年
+        description: "前年の年"
+      - name: 商談獲得数_当年
+        description: "当年の商談獲得数"
+      - name: 商談獲得数_前年
+        description: "前年の商談獲得数"
+      - name: 商談獲得数_前年比
+        description: "商談獲得数の前年比（%）"
+      - name: 予想契約金額_当年
+        description: "当年の予想契約金額"
+      - name: 予想契約金額_前年
+        description: "前年の予想契約金額"
+      - name: 予想契約金額_前年比
+        description: "予想契約金額の前年比（%）"
+      - name: 契約獲得数_当年
+        description: "当年の契約獲得数"
+      - name: 契約獲得数_前年
+        description: "前年の契約獲得数"
+      - name: 契約獲得数_前年比
+        description: "契約獲得数の前年比（%）"
+      - name: 契約金額_当年
+        description: "当年の契約金額"
+      - name: 契約金額_前年
+        description: "前年の契約金額"
+      - name: 契約金額_前年比
+        description: "契約金額の前年比（%）"
+
+  - name: mart_funnel_long
+    description: "ファネル分析マートテーブル（ロング形式）"
+    columns:
+      - name: 年月
+        description: "年月（YYYY-MM形式）"
+        data_tests:
+          - not_null
+      - name: ファネルステージ
+        description: "ファネルステージ名"
+        data_tests:
+          - not_null
+      - name: ステージ順序
+        description: "ステージの順序（1-8）"
+        data_tests:
+          - not_null
+      - name: 件数
+        description: "該当ステージの件数"
