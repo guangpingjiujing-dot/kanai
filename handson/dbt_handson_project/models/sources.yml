@@ -1,0 +1,106 @@
+version: 2
+
+sources:
+  - name: crm_system
+    description: "CRMシステム（営業システム）のデータソース"
+    schema: crm_system
+    tables:
+      - name: sales_persons
+        description: "営業担当者マスター"
+        columns:
+          - name: sales_person_id
+            description: "営業担当者ID"
+          - name: sales_person_name
+            description: "営業担当者名"
+          - name: phone_number
+            description: "電話番号"
+          - name: email
+            description: "メールアドレス"
+          - name: manager_id
+            description: "上長ID"
+      
+      - name: customers
+        description: "顧客マスター"
+        columns:
+          - name: customer_id
+            description: "顧客ID"
+          - name: customer_name
+            description: "顧客名"
+          - name: account_name
+            description: "アカウント名"
+          - name: phone_number
+            description: "電話番号"
+          - name: email
+            description: "メールアドレス"
+          - name: representative_name
+            description: "代表者名"
+          - name: channel_id
+            description: "チャネルID"
+          - name: channel_name
+            description: "チャネル名"
+          - name: manager_name
+            description: "上長名"
+      
+      - name: branches
+        description: "支店マスター"
+        columns:
+          - name: branch_id
+            description: "支店ID"
+          - name: branch_name
+            description: "支店名"
+          - name: region_id
+            description: "地域ID"
+          - name: region_name
+            description: "地域名"
+      
+      - name: stages
+        description: "ステージマスター"
+        columns:
+          - name: stage_id
+            description: "ステージID"
+          - name: stage_name
+            description: "ステージ名"
+          - name: stage_order
+            description: "ステージ順序"
+      
+      - name: opportunity_events
+        description: "営業機会イベントテーブル（トランザクションデータ）"
+        columns:
+          - name: event_id
+            description: "イベントID"
+          - name: sales_person_id
+            description: "営業担当者ID"
+          - name: customer_id
+            description: "顧客ID"
+          - name: product_id
+            description: "商品ID"
+          - name: branch_id
+            description: "支店ID"
+          - name: event_timestamp
+            description: "イベント発生日時"
+          - name: stage_id
+            description: "ステージID"
+          - name: expected_amount
+            description: "予想契約金額"
+          - name: contract_amount
+            description: "契約金額"
+
+  - name: product_system
+    description: "商品管理システムのデータソース"
+    schema: source_products
+    tables:
+      - name: products
+        description: "商品マスター（fetch_products.pyで生成されるデータ）"
+        columns:
+          - name: product_id
+            description: "商品ID"
+          - name: product_name
+            description: "商品名"
+          - name: category_id
+            description: "カテゴリーID"
+          - name: category_name
+            description: "カテゴリ名"
+          - name: service_id
+            description: "サービスID"
+          - name: service_name
+            description: "サービス名"

@@ -1,0 +1,181 @@
+version: 2
+
+models:
+  - name: dim_sales_person
+    description: "営業担当者ディメンションテーブル"
+    columns:
+      - name: sales_person_key
+        description: "営業担当者キー（主キー、サロゲートキー）"
+        data_tests:
+          - unique
+          - not_null
+      - name: sales_person_id
+        description: "営業担当者ID（元データのID）"
+      - name: sales_person_name
+        description: "営業担当者名"
+      - name: phone_number
+        description: "電話番号"
+      - name: email
+        description: "メールアドレス"
+      - name: manager_id
+        description: "上長ID"
+
+  - name: dim_customer
+    description: "顧客ディメンションテーブル"
+    columns:
+      - name: customer_key
+        description: "顧客キー（主キー、サロゲートキー）"
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "顧客ID（元データのID）"
+      - name: customer_name
+        description: "顧客名"
+      - name: account_name
+        description: "アカウント名"
+      - name: phone_number
+        description: "電話番号"
+      - name: email
+        description: "メールアドレス"
+      - name: representative_name
+        description: "代表者名"
+      - name: channel_key
+        description: "チャネルキー"
+      - name: channel_name
+        description: "チャネル名"
+      - name: manager_name
+        description: "上長名"
+
+  - name: dim_branch
+    description: "支店ディメンションテーブル"
+    columns:
+      - name: branch_key
+        description: "支店キー（主キー、サロゲートキー）"
+        data_tests:
+          - unique
+          - not_null
+      - name: branch_id
+        description: "支店ID（元データのID）"
+      - name: branch_name
+        description: "支店名"
+      - name: region_key
+        description: "地域キー"
+      - name: region_name
+        description: "地域名"
+
+  - name: dim_stage
+    description: "ステージディメンションテーブル"
+    columns:
+      - name: stage_key
+        description: "ステージキー（主キー、サロゲートキー）"
+        data_tests:
+          - unique
+          - not_null
+      - name: stage_id
+        description: "ステージID（元データのID）"
+      - name: stage_name
+        description: "ステージ名"
+      - name: stage_order
+        description: "ステージ順序（1-8）"
+
+  - name: dim_product
+    description: "商品ディメンションテーブル（商品管理システムから取得）"
+    columns:
+      - name: product_key
+        description: "商品キー（主キー、サロゲートキー）"
+        data_tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: "商品ID（元データのID）"
+      - name: product_name
+        description: "商品名"
+      - name: category_key
+        description: "カテゴリーキー"
+      - name: category_name
+        description: "カテゴリ名"
+      - name: service_key
+        description: "サービスキー"
+      - name: service_name
+        description: "サービス名"
+
+  - name: dim_date
+    description: "日付ディメンションテーブル（seedから生成）"
+    columns:
+      - name: date_key
+        description: "日付キー（主キー、YYYYMMDD形式）"
+        data_tests:
+          - unique
+          - not_null
+      - name: date_value
+        description: "日付"
+      - name: year
+        description: "年"
+      - name: month
+        description: "月"
+      - name: day
+        description: "日"
+      - name: quarter
+        description: "四半期（1-4）"
+      - name: day_of_week
+        description: "曜日"
+
+  - name: fact_opportunity_events
+    description: "営業イベントファクトテーブル"
+    columns:
+      - name: event_id
+        description: "イベントID（主キー）"
+        data_tests:
+          - unique
+          - not_null
+      - name: sales_person_key
+        description: "営業担当者キー（dim_sales_person参照）"
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_sales_person')
+              field: sales_person_key
+      - name: customer_key
+        description: "顧客キー（dim_customer参照）"
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+      - name: product_key
+        description: "商品キー（dim_product参照）"
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
+      - name: branch_key
+        description: "支店キー（dim_branch参照）"
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_branch')
+              field: branch_key
+      - name: stage_key
+        description: "ステージキー（dim_stage参照）"
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_stage')
+              field: stage_key
+      - name: date_key
+        description: "日付キー（dim_date参照）"
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: event_timestamp
+        description: "イベント発生日時"
+        data_tests:
+          - not_null
+      - name: expected_amount
+        description: "予想契約金額"
+      - name: contract_amount
+        description: "契約金額（成約時のみ）"

@@ -1,0 +1,32 @@
+name: 'dbt_handson_project'
+version: '1.0.0'
+
+profile: 'dbt_handson_project'
+
+config-version: 2
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+require-dbt-version: [">=1.0.0", "<2.0.0"]
+
+flags:
+  partial_parse: true
+
+models:
+  dbt_handson_project:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts

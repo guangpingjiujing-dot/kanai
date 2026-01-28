@@ -1,0 +1,15 @@
+dbt_handson_project:
+  target: fabric-dev
+  outputs:
+    fabric-dev:
+      type: fabric
+      driver: "ODBC Driver 18 for SQL Server"
+      server: "{{ env_var('FABRIC_WAREHOUSE_CONNECTION') }}"
+      port: 1433
+      database: "taitechWarehouseTraning"
+      schema: dbt
+      threads: 4
+      authentication: ServicePrincipal
+      tenant_id: "{{ env_var('AZURE_TENANT_ID') }}"
+      client_id: "{{ env_var('AZURE_CLIENT_ID') }}"
+      client_secret: "{{ env_var('AZURE_CLIENT_SECRET') }}"
