@@ -6,8 +6,8 @@ with source as (
 
 renamed as (
     select
-        channel_id,
-        channel_name
+        trim(channel_id) as channel_id,
+        trim(channel_name) as channel_name
     from source
 )
 

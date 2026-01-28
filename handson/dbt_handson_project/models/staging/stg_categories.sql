@@ -6,8 +6,8 @@ with source as (
 
 renamed as (
     select
-        category_id,
-        category_name
+        cast(category_id as bigint) as category_id,
+        trim(category_name) as category_name
     from source
 )
 

@@ -6,10 +6,10 @@ with source as (
 
 renamed as (
     select
-        product_id,
-        product_name,
-        category_id,
-        service_id
+        cast(product_id as bigint) as product_id,
+        trim(product_name) as product_name,
+        cast(category_id as bigint) as category_id,
+        cast(service_id as bigint) as service_id
     from source
 )
 

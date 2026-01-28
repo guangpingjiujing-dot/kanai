@@ -6,9 +6,9 @@ with source as (
 
 renamed as (
     select
-        stage_id,
-        stage_name,
-        stage_order
+        trim(stage_id) as stage_id,
+        trim(stage_name) as stage_name,
+        cast(stage_order as int) as stage_order
     from source
 )
 

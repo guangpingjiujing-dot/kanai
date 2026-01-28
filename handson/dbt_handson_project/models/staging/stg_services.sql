@@ -6,8 +6,8 @@ with source as (
 
 renamed as (
     select
-        service_id,
-        service_name
+        cast(service_id as bigint) as service_id,
+        trim(service_name) as service_name
     from source
 )
 

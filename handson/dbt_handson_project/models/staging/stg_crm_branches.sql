@@ -6,9 +6,9 @@ with source as (
 
 renamed as (
     select
-        branch_id,
-        branch_name,
-        region_id
+        trim(branch_id) as branch_id,
+        trim(branch_name) as branch_name,
+        trim(region_id) as region_id
     from source
 )
 

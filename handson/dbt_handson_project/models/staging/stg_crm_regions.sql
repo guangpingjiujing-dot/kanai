@@ -6,8 +6,8 @@ with source as (
 
 renamed as (
     select
-        region_id,
-        region_name
+        trim(region_id) as region_id,
+        trim(region_name) as region_name
     from source
 )
 

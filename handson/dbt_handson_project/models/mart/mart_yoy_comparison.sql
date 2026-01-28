@@ -27,7 +27,8 @@ monthly_summary as (
                right('0' + cast(f.month as varchar(2)), 2)) as 年月,
         count(distinct f.event_id) as 商談獲得数,
         sum(f.expected_amount) as 予想契約金額,
-        count(distinct case when f.contract_amount is not null then f.event_id end) as 契約獲得数,
+        -- contract_amountが0より大きい場合のみ契約成立とみなす（stg層でNULLは0に変換されているため）
+        count(distinct case when f.contract_amount > 0 then f.event_id end) as 契約獲得数,
         sum(f.contract_amount) as 契約金額
     from fact_with_date as f
     where f.year >= 2023

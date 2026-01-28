@@ -6,11 +6,11 @@ with source as (
 
 renamed as (
     select
-        sales_person_id,
-        sales_person_name,
-        phone_number,
-        email,
-        manager_id
+        trim(sales_person_id) as sales_person_id,
+        trim(sales_person_name) as sales_person_name,
+        trim(phone_number) as phone_number,
+        lower(trim(email)) as email,
+        trim(manager_id) as manager_id
     from source
 )
 
