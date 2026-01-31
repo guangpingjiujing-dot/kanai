@@ -1,0 +1,22 @@
+name: 'jaffle_shop'
+version: '1.0.0'
+
+profile: 'jaffle_shop'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"] # QUESTION: dbt run では実行されない分析用SQLの具体的な用途は？
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  jaffle_shop:
+    staging:
+      +materialized: view
+    mart:
+      +materialized: table

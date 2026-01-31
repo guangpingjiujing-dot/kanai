@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: 顧客データのステージング
+    columns:
+      - name: customer_id
+        description: 顧客ID（主キー）
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_orders
+    description: 注文データのステージング
+    columns:
+      - name: order_id
+        description: 注文ID（主キー）
+        tests:
+          - unique
+          - not_null
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['placed', 'shipped', 'completed', 'return_pending', 'returned']
+
+  - name: stg_payments
+    description: 支払いデータのステージング
+    columns:
+      - name: payment_id
+        description: 支払いID（主キー）
+        tests:
+          - unique
+          - not_null
