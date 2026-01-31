@@ -2615,3 +2615,39 @@ USE [jaffle_warehouse];
 [0m17:20:07.734877 [debug] [MainThread]: running dbt with arguments {'printer_width': '80', 'warn_error': 'None', 'partial_parse': 'True', 'log_format': 'default', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'write_json': 'True', 'empty': 'None', 'introspect': 'True', 'use_experimental_parser': 'False', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'debug': 'False', 'static_parser': 'True', 'use_colors': 'True', 'log_cache_events': 'False', 'no_print': 'None', 'version_check': 'True', 'fail_fast': 'False', 'indirect_selection': 'eager', 'profiles_dir': '/Users/rimix/work/kanai/traning/jaffle_shop', 'invocation_command': 'dbt docs serve', 'log_path': '/Users/rimix/work/kanai/traning/jaffle_shop/logs', 'cache_selected_only': 'False', 'target_path': 'None'}
 [0m17:20:08.204508 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'project_id', 'label': '00bb7f57-8c96-4b65-b3ae-49c6909f8717', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x111f18680>]}
 [0m17:20:08.305872 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'adapter_info', 'label': '00bb7f57-8c96-4b65-b3ae-49c6909f8717', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1121fd6a0>]}
+[0m17:47:11.080778 [error] [MainThread]: Encountered an error:
+
+[0m17:47:11.111712 [error] [MainThread]: Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/dbt/cli/requires.py", line 182, in wrapper
+    result, success = func(*args, **kwargs)
+                      ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/dbt/cli/requires.py", line 128, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/dbt/cli/requires.py", line 276, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/dbt/cli/requires.py", line 321, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/dbt/cli/requires.py", line 368, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/dbt/cli/main.py", line 307, in docs_serve
+    results = task.run()
+              ^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/dbt/task/docs/serve.py", line 29, in run
+    httpd.serve_forever()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/selectors.py", line 415, in select
+    fd_event_list = self._selector.poll(timeout)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+[0m17:47:11.126573 [debug] [MainThread]: Resource report: {"command_name": "serve", "command_success": false, "command_wall_clock_time": 1623.4705, "process_in_blocks": "0", "process_kernel_time": 0.462674, "process_mem_max_rss": "115732480", "process_out_blocks": "0", "process_user_time": 2.860565}
+[0m17:47:11.133472 [debug] [MainThread]: Command `dbt docs serve` failed at 17:47:11.132940 after 1623.48 seconds
+[0m17:47:11.137120 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x111eaa2d0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1120c3440>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x1127170e0>]}
+[0m17:47:11.139211 [debug] [MainThread]: Flushing usage events
+[0m17:47:12.205399 [debug] [MainThread]: An error was encountered while trying to flush usage events

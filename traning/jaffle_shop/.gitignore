@@ -1,0 +1,17 @@
+# dbt artifacts
+target/
+dbt_packages/
+logs/
+
+# User-specific files
+.user.yml
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Environment (if using .env file)
+.env
