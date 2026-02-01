@@ -5,9 +5,9 @@ jaffle_shop:
     fabric-dev:
       type: fabric
       driver: "ODBC Driver 18 for SQL Server"
-      server: "t5txzdn46dvuniywcpm5owcawm-bxibaf7eydnu5edyx5dy3yentq.datawarehouse.fabric.microsoft.com"
+      server: "{{ env_var('FABRIC_SERVER') }}"
       port: 1433
-      database: "jaffle_warehouse" # QUESTION:dbtは1つの会社で1つだが、databaseはどの単位が望ましい？
+      database: "{{ env_var('FABRIC_DATABASE', 'jaffle_warehouse') }}" # QUESTION:dbtは1つの会社で1つだが、databaseはどの単位が望ましい？
       schema: jaffle_training
       threads: 4
       authentication: ServicePrincipal
