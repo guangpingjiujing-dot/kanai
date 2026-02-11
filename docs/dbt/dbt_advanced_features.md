@@ -1065,6 +1065,289 @@ dbt run --select tag:marts && dbt test --select tag:marts
 
 ---
 
+## MetaタグによるOwnerとSubscriberの設定
+
+### 概要
+
+`meta`タグを使用して、モデルやソースの所有者（owner）や購読者（subscriber）を定義できます。これにより、モデルの責任者や変更通知を受け取るべき人を明確にできます。
+
+### Ownerの設定
+
+#### schema.ymlで設定
+
+```yaml
+# models/marts/schema.yml
+models:
+  - name: mart_daily_sales
+    description: "日次売上マート"
+    meta:
+      owner:
+        name: "データ分析チーム"
+        email: "analytics@example.com"
+        slack: "#analytics-team"
+    
+  - name: mart_customers
+    description: "顧客マート"
+    meta:
+      owner:
+        name: "マーケティングチーム"
+        email: "marketing@example.com"
+```
+
+#### モデルファイル内で設定
+
+```sql
+-- models/marts/mart_orders.sql
+{{ config(
+    meta={
+        "owner": {
+            "name": "データエンジニアリングチーム",
+            "email": "data-eng@example.com"
+        }
+    }
+) }}
+
+select
+    order_id,
+    customer_id,
+    order_date,
+    total_amount
+from {{ ref('stg_orders') }}
+```
+
+### Subscriberの設定
+
+モデルの変更通知を受け取るべき人を設定：
+
+```yaml
+# models/marts/schema.yml
+models:
+  - name: mart_daily_sales
+    description: "日次売上マート"
+    meta:
+      owner:
+        name: "データ分析チーム"
+        email: "analytics@example.com"
+      subscribers:
+        - name: "経営企画部"
+          email: "strategy@example.com"
+        - name: "営業部"
+          email: "sales@example.com"
+```
+
+### Meta情報の活用
+
+#### dbt docsでの表示
+
+`dbt docs generate`を実行すると、meta情報がドキュメントに表示されます。
+
+
+## セレクター（Selectors）
+
+### 概要
+
+セレクターは、`selectors.yml`ファイルで定義した選択パターンを再利用する機能です。複雑な選択条件を名前付きで保存し、コマンドラインで簡単に参照できます。
+
+### セレクターファイルの作成
+
+`selectors.yml`を作成：
+
+```yaml
+# selectors.yml
+selectors:
+  - name: daily_models
+    description: "日次更新されるモデル"
+    definition:
+      method: tag
+      value: update:daily
+  
+  - name: staging_layer
+    description: "ステージング層のすべてのモデル"
+    definition:
+      method: path
+      value: models/staging
+  
+  - name: marts_with_tests
+    description: "マート層のモデルとそのテスト"
+    definition:
+      method: tag
+      value: marts
+      config:
+        include_tests: true
+  
+  - name: critical_path
+    description: "重要なモデルの依存関係を含む"
+    definition:
+      method: fqn
+      value: marts.mart_daily_sales
+      config:
+        downstream: true
+```
+
+### セレクターの使用
+
+#### 基本的な使用
+
+```bash
+# セレクター名を指定して実行
+dbt run --selector daily_models
+
+# テストも含める
+dbt test --selector daily_models
+```
+
+#### 複数のセレクターを組み合わせ
+
+```yaml
+# selectors.yml
+selectors:
+  - name: daily_staging
+    description: "日次更新のステージングモデル"
+    definition:
+      intersection:
+        - method: tag
+          value: update:daily
+        - method: path
+          value: models/staging
+  
+  - name: marts_or_intermediate
+    description: "マート層または中間層"
+    definition:
+      union:
+        - method: tag
+          value: marts
+        - method: tag
+          value: intermediate
+```
+
+### セレクターの種類
+
+#### method: tag
+
+タグで選択：
+
+```yaml
+selectors:
+  - name: staging_models
+    definition:
+      method: tag
+      value: staging
+```
+
+#### method: path
+
+パスで選択：
+
+```yaml
+selectors:
+  - name: staging_folder
+    definition:
+      method: path
+      value: models/staging
+```
+
+#### method: fqn
+
+完全修飾名で選択：
+
+```yaml
+selectors:
+  - name: specific_model
+    definition:
+      method: fqn
+      value: marts.mart_daily_sales
+```
+
+#### method: config
+
+設定値で選択：
+
+```yaml
+selectors:
+  - name: incremental_models
+    definition:
+      method: config
+      key: materialized
+      value: incremental
+```
+
+### 依存関係を含める
+
+```yaml
+selectors:
+  - name: mart_with_dependencies
+    description: "マート層とその依存モデル"
+    definition:
+      method: tag
+      value: marts
+      config:
+        upstream: true
+        downstream: false
+  
+  - name: full_lineage
+    description: "モデルとその上下流すべて"
+    definition:
+      method: fqn
+      value: marts.mart_daily_sales
+      config:
+        upstream: true
+        downstream: true
+```
+
+### 実践例：環境別セレクター
+
+```yaml
+# selectors.yml
+selectors:
+  - name: dev_models
+    description: "開発環境で実行するモデル"
+    definition:
+      union:
+        - method: tag
+          value: staging
+        - method: tag
+          value: dev_only
+  
+  - name: prod_models
+    description: "本番環境で実行するモデル"
+    definition:
+      method: tag
+      value: prod
+      config:
+        exclude:
+          - tag: dev_only
+  
+  - name: daily_pipeline
+    description: "日次パイプライン"
+    definition:
+      intersection:
+        - method: tag
+          value: update:daily
+        - union:
+            - method: tag
+              value: staging
+            - method: tag
+              value: marts
+```
+
+### セレクターの確認
+
+```bash
+# セレクターで選択されるモデルを確認（実行しない）
+dbt list --selector daily_models
+
+# セレクターの定義を確認
+dbt list --selector daily_models --output json
+```
+
+### 注意点
+
+1. **ファイル名**: `selectors.yml`はプロジェクトルートに配置します
+2. **優先順位**: セレクターと`--select`オプションを同時に指定した場合、セレクターが優先されます
+3. **再利用性**: よく使う選択パターンはセレクターとして定義すると便利です
+
+---
+
 ## エクスポージャー（Exposures）
 
 ### 概要
@@ -1381,6 +1664,288 @@ dbt run-operation cleanup_tables --args '{schema_name: staging, table_pattern: s
 ```bash
 dbt run-operation backup_table --args '{table_ref: ref("mart_orders"), backup_suffix: "_20240101"}'
 ```
+
+---
+
+## Programmatic Invocations（プログラムからの実行）
+
+### 概要
+
+dbtはPythonのAPIを通じてプログラムから実行できます。これにより、Pythonスクリプトや他のアプリケーションからdbtコマンドを呼び出せます。
+
+### 基本的な使い方
+
+#### dbtRunnerを使用
+
+```python
+# run_dbt.py
+from dbt.cli.main import dbtRunner
+
+# dbtRunnerのインスタンスを作成
+dbt = dbtRunner()
+
+# dbt runを実行
+result = dbt.invoke(["run"])
+
+# 結果を確認
+if result.success:
+    print("✓ dbt runが正常に完了しました")
+else:
+    print("✗ dbt runでエラーが発生しました")
+```
+
+#### プロジェクトディレクトリの指定
+
+```python
+import os
+from pathlib import Path
+from dbt.cli.main import dbtRunner
+
+# dbtプロジェクトのディレクトリパス
+project_dir = Path(__file__).parent / "dbt_project"
+
+# プロジェクトディレクトリに移動
+os.chdir(project_dir)
+
+# dbtRunnerのインスタンスを作成
+dbt = dbtRunner()
+
+# dbt runを実行
+result = dbt.invoke(["run"])
+```
+
+### 実践例：完全なスクリプト
+
+```python
+"""
+dbt run を Python から呼び出すシンプルなスクリプト
+"""
+import os
+import sys
+from pathlib import Path
+
+# dbt の CLI をインポート
+from dbt.cli.main import dbtRunner
+
+
+def main():
+    # dbt プロジェクトのディレクトリパス
+    project_dir = Path(__file__).parent / "dbt_handson_project"
+    
+    # プロジェクトディレクトリに移動
+    os.chdir(project_dir)
+    
+    # dbtRunner のインスタンスを作成
+    dbt = dbtRunner()
+    
+    # dbt run を実行
+    print(f"dbt プロジェクトディレクトリ: {project_dir}")
+    print("dbt run を実行します...")
+    
+    result = dbt.invoke(["run"])
+    
+    # 結果を確認
+    if result.success:
+        print("✓ dbt run が正常に完了しました")
+        return 0
+    else:
+        print("✗ dbt run でエラーが発生しました")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+```
+
+### 様々なコマンドの実行
+
+#### dbt test
+
+```python
+from dbt.cli.main import dbtRunner
+
+dbt = dbtRunner()
+result = dbt.invoke(["test"])
+
+if result.success:
+    print("すべてのテストが成功しました")
+```
+
+#### dbt compile
+
+```python
+from dbt.cli.main import dbtRunner
+
+dbt = dbtRunner()
+result = dbt.invoke(["compile"])
+
+if result.success:
+    print("コンパイルが完了しました")
+```
+
+#### 特定のモデルを選択
+
+```python
+from dbt.cli.main import dbtRunner
+
+dbt = dbtRunner()
+result = dbt.invoke(["run", "--select", "stg_orders"])
+
+if result.success:
+    print("stg_ordersモデルが実行されました")
+```
+
+#### タグで選択
+
+```python
+from dbt.cli.main import dbtRunner
+
+dbt = dbtRunner()
+result = dbt.invoke(["run", "--select", "tag:staging"])
+
+if result.success:
+    print("stagingタグのモデルが実行されました")
+```
+
+#### 変数を渡す
+
+```python
+from dbt.cli.main import dbtRunner
+import json
+
+dbt = dbtRunner()
+vars_dict = {
+    "start_date": "2024-01-01",
+    "end_date": "2024-12-31"
+}
+result = dbt.invoke([
+    "run",
+    "--vars", json.dumps(vars_dict)
+])
+
+if result.success:
+    print("変数を指定して実行が完了しました")
+```
+
+### 結果の詳細な確認
+
+```python
+from dbt.cli.main import dbtRunner
+
+dbt = dbtRunner()
+result = dbt.invoke(["run"])
+
+# 結果の詳細を確認
+if result.success:
+    print(f"実行成功: {result.success}")
+    print(f"結果オブジェクト: {result.result}")
+    
+    # 実行されたモデルの情報を取得
+    if hasattr(result.result, 'results'):
+        for node_result in result.result.results:
+            print(f"モデル: {node_result.node.name}, 状態: {node_result.status}")
+else:
+    print(f"実行失敗: {result.exception}")
+```
+
+### エラーハンドリング
+
+```python
+from dbt.cli.main import dbtRunner
+
+dbt = dbtRunner()
+
+try:
+    result = dbt.invoke(["run"])
+    
+    if result.success:
+        print("✓ 実行成功")
+    else:
+        print(f"✗ 実行失敗: {result.exception}")
+        # エラーの詳細を確認
+        if hasattr(result, 'exception'):
+            print(f"エラー内容: {result.exception}")
+            
+except Exception as e:
+    print(f"予期しないエラー: {e}")
+```
+
+### 実践例：スケジュール実行スクリプト
+
+```python
+"""
+スケジュール実行用のdbtスクリプト
+"""
+import os
+import sys
+from pathlib import Path
+from datetime import datetime
+from dbt.cli.main import dbtRunner
+
+
+def run_dbt_command(command_args, project_dir=None):
+    """
+    dbtコマンドを実行する汎用関数
+    
+    Args:
+        command_args: dbtコマンドの引数リスト（例: ["run", "--select", "tag:daily"]）
+        project_dir: dbtプロジェクトのディレクトリパス（Noneの場合は現在のディレクトリ）
+    
+    Returns:
+        result: dbtRunnerの実行結果
+    """
+    if project_dir:
+        os.chdir(project_dir)
+    
+    dbt = dbtRunner()
+    result = dbt.invoke(command_args)
+    
+    return result
+
+
+def main():
+    project_dir = Path(__file__).parent / "dbt_project"
+    
+    print(f"[{datetime.now()}] dbt実行を開始します")
+    print(f"プロジェクトディレクトリ: {project_dir}")
+    
+    # 日次更新モデルを実行
+    result = run_dbt_command(
+        ["run", "--select", "tag:update:daily"],
+        project_dir
+    )
+    
+    if result.success:
+        print(f"[{datetime.now()}] ✓ dbt runが正常に完了しました")
+        
+        # テストも実行
+        test_result = run_dbt_command(
+            ["test", "--select", "tag:update:daily"],
+            project_dir
+        )
+        
+        if test_result.success:
+            print(f"[{datetime.now()}] ✓ すべてのテストが成功しました")
+            return 0
+        else:
+            print(f"[{datetime.now()}] ✗ テストでエラーが発生しました")
+            return 1
+    else:
+        print(f"[{datetime.now()}] ✗ dbt runでエラーが発生しました")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+```
+
+### 注意点
+
+1. **プロジェクトディレクトリ**: 実行前に適切なプロジェクトディレクトリに移動する必要があります
+2. **profiles.yml**: `profiles.yml`の設定が正しく読み込まれることを確認してください
+3. **エラーハンドリング**: 実行結果を適切にチェックし、エラー処理を実装してください
+4. **ログ出力**: 本番環境ではログファイルへの出力も検討してください
+
 ---
 
 ## リスティング機能（List）
@@ -1509,6 +2074,241 @@ dbt compile --select analyses/explore_customer_behavior.sql
 # コンパイルされたSQLを確認
 cat target/compiled/analyses/explore_customer_behavior.sql
 ```
+
+---
+
+## Profile.ymlによる本番環境と開発環境の定義
+
+### 概要
+
+`profiles.yml`ファイルを使用して、複数の環境（開発、ステージング、本番など）の接続設定を管理できます。環境ごとに異なるデータウェアハウスやスキーマに接続できます。
+
+### profiles.ymlの場所
+
+`profiles.yml`は通常、以下の場所に配置されます：
+
+- **Windows**: `C:\Users\<ユーザー名>\.dbt\profiles.yml`
+- **macOS/Linux**: `~/.dbt/profiles.yml`
+
+### 基本的な設定
+
+#### 開発環境と本番環境の定義
+
+```yaml
+# profiles.yml
+dbt_project:
+  target: dev  # デフォルトのターゲット環境
+  
+  outputs:
+    # 開発環境
+    dev:
+      type: fabric
+      server: your-dev-server.database.windows.net
+      database: dev_warehouse
+      schema: dbt_dev
+      authentication: ActiveDirectoryInteractive
+      threads: 4
+    
+    # 本番環境
+    prod:
+      type: fabric
+      server: your-prod-server.database.windows.net
+      database: prod_warehouse
+      schema: dbt_prod
+      authentication: ActiveDirectoryInteractive
+      threads: 8
+```
+
+### 環境の切り替え
+
+#### コマンドラインで指定
+
+```bash
+# 開発環境で実行
+dbt run --target dev
+
+# 本番環境で実行
+dbt run --target prod
+```
+
+### モデル内での環境判定
+
+モデル内で現在の環境を判定できます：
+
+```sql
+-- models/marts/mart_orders.sql
+select
+    order_id,
+    customer_id,
+    order_date,
+    total_amount
+from {{ ref('stg_orders') }}
+
+{% if target.name == 'prod' %}
+    -- 本番環境ではテストデータを除外
+    where customer_id not like 'TEST%'
+{% endif %}
+```
+---
+
+## dbt Elementary
+
+### 概要
+
+dbt Elementaryは、dbtプロジェクトのデータ品質監視とテスト結果の可視化を行うオープンソースツールです。dbtのテスト結果を収集し、ダッシュボードで可視化します。
+
+### 主な機能
+
+- **テスト結果の可視化**: dbtテストの結果をダッシュボードで確認
+- **データ品質モニタリング**: データ品質の変化を追跡
+- **アラート**: テスト失敗時の通知
+- **Lineage可視化**: データの依存関係を可視化
+
+### インストール
+
+#### 1. パッケージのインストール
+
+```bash
+pip install elementary-data
+```
+
+#### 2. dbtプロジェクトへの追加
+
+`packages.yml`に追加：
+
+```yaml
+# packages.yml
+packages:
+  - package: elementary-data/elementary
+    version: 0.11.0
+```
+
+```bash
+dbt deps
+```
+
+#### 3. プロファイル設定
+
+`profiles.yml`にElementaryの設定を追加：
+
+```yaml
+# profiles.yml
+dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: fabric
+      # ... その他の設定
+      # Elementary用の設定
+      elementary:
+        api_key: your_api_key  # オプション
+```
+
+### 基本的な使い方
+
+#### 1. テスト結果の収集
+
+```bash
+# dbtテストを実行して結果を収集
+dbt test
+edr run
+```
+
+#### 2. レポートの生成
+
+```bash
+# HTMLレポートを生成
+edr report
+```
+
+#### 3. レポートの表示
+
+生成されたHTMLレポートをブラウザで開きます。
+
+### データ品質テストの追加
+
+Elementaryは、dbtの標準テストに加えて、追加のデータ品質テストを提供します：
+
+```yaml
+# models/staging/schema.yml
+models:
+  - name: stg_orders
+    description: "注文データのステージング"
+    tests:
+      - elementary.volume_anomalies:
+          sensitivity: 0.3
+          backfill_days: 30
+      
+      - elementary.freshness_anomalies:
+          timestamp_column: updated_at
+          backfill_days: 7
+```
+
+### 実践例：完全な設定
+
+#### dbt_project.yml
+
+```yaml
+# dbt_project.yml
+name: 'dbt_project'
+version: '1.0.0'
+
+models:
+  dbt_project:
+    +meta:
+      owner: "データチーム"
+      quality_tier: "tier_1"
+```
+
+#### schema.ymlでのテスト定義
+
+```yaml
+# models/marts/schema.yml
+models:
+  - name: mart_daily_sales
+    description: "日次売上マート"
+    tests:
+      - elementary.volume_anomalies:
+          sensitivity: 0.2
+          backfill_days: 30
+      
+      - elementary.freshness_anomalies:
+          timestamp_column: order_date
+          backfill_days: 7
+      
+      - elementary.schema_changes
+```
+
+### Elementaryのダッシュボード機能
+
+#### テスト結果の可視化
+
+- テストの成功率
+- テストの実行履歴
+- 失敗したテストの詳細
+
+#### データ品質メトリクス
+
+- データ量の異常検知
+- データの鮮度監視
+- スキーマ変更の検知
+
+#### Lineage可視化
+
+- モデル間の依存関係
+- データフローの可視化
+
+### 注意点
+
+1. **Fabric対応**: ElementaryはFabric Warehouseをサポートしていますが、一部機能が制限される場合があります
+2. **ストレージ**: テスト結果を保存するためのストレージが必要です
+3. **パフォーマンス**: 大規模なプロジェクトでは、レポート生成に時間がかかる場合があります
+4. **設定**: プロジェクトの規模に応じて、適切な設定を行ってください
+
+### 参考リンク
+
+- [Elementary公式ドキュメント](https://docs.elementary-data.com/)
+- [Elementary GitHub](https://github.com/elementary-data/elementary)
 
 ---
 
